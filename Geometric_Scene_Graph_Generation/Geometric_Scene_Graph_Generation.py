@@ -7,9 +7,6 @@
 ###Libraries
 
 
-# In[332]:
-
-
 import torch
 import random
 import networkx as nx
@@ -36,13 +33,7 @@ from torchvision.models import resnet50
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
-# In[333]:
-
-
 ###Arguments
-
-
-# In[364]:
 
 
 img_dir_train = "GNNdataset3/Train"
@@ -141,13 +132,7 @@ graph4 = graph1
 labels4 = labels1
 
 
-# In[86]:
-
-
 ###Data Loading
-
-
-# In[87]:
 
 
 import os
@@ -226,9 +211,6 @@ size_first_dimension = image_array.shape[0]
 print("Größe der ersten Dimension:", size_first_dimension)
 
 
-# In[374]:
-
-
 def random_mapping_from_adjacency_matrix(num_nodes, adjacency_matrix, label_matrix):
     # Erstellen des Pfadgraphen G mit 4 Knoten
     adjacency_matrix = adjacency_matrix.numpy()
@@ -269,9 +251,6 @@ print("\nNeue Labelmatrix:")
 print(new_matrix2)
 
 
-# In[89]:
-
-
 def resort_vectors(mapping, features):
     ###Order regarding first index:
     first_index = list(mapping.keys())
@@ -299,9 +278,6 @@ def resort_vectors(mapping, features):
 
 #features = resort_vectors(random_mapping, image_array)
 #print(features)
-
-
-# In[370]:
 
 
 import networkx as nx
@@ -347,13 +323,7 @@ print("Features:")
 print(reduced_features)
 
 
-# In[91]:
-
-
 ###Verbinden der Graphen
-
-
-# In[376]:
 
 
 import numpy as np
@@ -429,9 +399,6 @@ print("Shape der kombinierten reduzierten Merkmale:", stacked_features.shape)
 print("Shape der kombinierten reduzierten Labels:", stacked_labels.shape)
 
 
-# In[93]:
-
-
 torch.save(stacked_matrices, 'GNNdataset3/stacked_matrices.pt')
 #stacked_matrices = torch.load('GNNdataset3/stacked_matrices.pt')
 torch.save(stacked_features, 'GNNdataset3/stacked_features.pt')
@@ -439,14 +406,7 @@ torch.save(stacked_features, 'GNNdataset3/stacked_features.pt')
 torch.save(stacked_labels, 'GNNdataset3/stacked_labels.pt')
 #stacked_labels = torch.load('GNNdataset3/stacked_labels.pt')
 
-
-# In[16]:
-
-
 #Load Data
-
-
-# In[334]:
 
 
 # Konvertierung der Tensoren in ein Dataset
@@ -474,13 +434,7 @@ val_loader = DataLoader(val_dataset, batch_size=batch_size)
 test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
 
-# In[ ]:
-
-
 # Model
-
-
-# In[22]:
 
 
 import torch
@@ -526,9 +480,6 @@ class TransformerModel(nn.Module):
         output = self.linear_out(decoder_output)
 
         return output
-
-
-# In[335]:
 
 
 import torch
@@ -579,13 +530,7 @@ class TransformerModel(nn.Module):
         return probabilities
 
 
-# In[336]:
-
-
 #Initialisierung
-
-
-# In[355]:
 
 
 input_dim = 3328  # Anzahl der Features (Flattened)
@@ -600,10 +545,6 @@ model = TransformerModel(input_dim, output_dim, num_layers, num_heads, hidden_di
 criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.01)  #weight_decay=0.001
 scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=30, factor=0.9, verbose=True)
-
-
-# In[356]:
-
 
 import torch
 import torch.nn as nn
@@ -636,10 +577,6 @@ def train_model(model, train_loader, epochs):
 
 train_model(model, train_loader, epochs=100)
 
-
-# In[357]:
-
-
 def inference_on_loader(model, test_loader, device = 'cpu'):
     model.eval()
     model.to(device)
@@ -657,9 +594,6 @@ def inference_on_loader(model, test_loader, device = 'cpu'):
     return predictions
 
 
-# In[358]:
-
-
 def compute_accuracy(predictions, test_loader):
     correct = 0
     total = 0
@@ -674,52 +608,14 @@ def compute_accuracy(predictions, test_loader):
     accuracy = correct / total
     return accuracy
 
-
-# In[359]:
-
-
 predictions = inference_on_loader(model, test_loader, device)
 accuracy = compute_accuracy(predictions, test_loader)
 print(f'Accuracy: {accuracy:.4f}')
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 ###Attentional Message Passing
-
-
-# In[ ]:
 
 
 class CNN(nn.Module):
@@ -739,9 +635,6 @@ class CNN(nn.Module):
     def forward(self, x):
         x = self.fc(x)
         return x
-
-
-# In[362]:
 
 
 class AttentionalGCN(nn.Module):
@@ -812,9 +705,6 @@ print("Updated Object Features:")
 print(output_objects)
 
 
-# In[361]:
-
-
 class SiameseNetworkWithAttention(nn.Module):
     def __init__(self, num_classes, input_dim, hidden_dim, output_dim):
         super(SiameseNetworkWithAttention, self).__init__()
@@ -843,9 +733,6 @@ class SiameseNetworkWithAttention(nn.Module):
         return x
 
 
-# In[ ]:
-
-
 ###INITIATE MODEL:
 # Instantiate Siamese network
 siamese_net = SiameseNetworkWithAttention(num_classes = 4, 
@@ -857,9 +744,6 @@ siamese_net = SiameseNetworkWithAttention(num_classes = 4,
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(list(siamese_net.parameters()), lr=0.001)
 scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=5, factor=0.5, verbose=True)
-
-
-# In[ ]:
 
 
 def roc_auc_val_loss(model, val_loader, criterion1, criterion2):
@@ -907,9 +791,6 @@ def get_predictions(model, test_loader):
     accuracy = correct / total
     print(f"Accuracy: {accuracy:.4f}")
     return all_predictions, label_prediction
-
-
-# In[ ]:
 
 
 torch.set_printoptions(precision=3)
